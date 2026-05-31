@@ -2,103 +2,9 @@
 
 > CLI toolkit for building, testing, and deploying Reticulum networks — like terraform for mesh
 
-```
-    ╔═════════════════════════════════════════════════════════════════════╗
-    ║                    R E T I C U L U M   F O R G E                   ║
-    ║                                                                     ║
-    ║   $ forge init my-network                                           ║
-    ║   $ forge generate --hardware rnode-lora --freq 868mhz              ║
-    ║   $ forge simulate --nodes 10 --topology mesh                      ║
-    ║   $ forge deploy --target pi@10.0.1.50                             ║
-    ║   $ forge monitor                                                   ║
-    ║   $ forge test --check connectivity --check latency                ║
-    ║                                                                     ║
-    ║   ┌─────────────────────────────────────────────────────────────┐  ║
-    ║   │                     Forge CLI                               │  ║
-    ║   │                                                             │  ║
-    ║   │  ┌──────────┐ ┌───────────┐ ┌──────────┐ ┌──────────────┐ │  ║
-    ║   │  │   init   │ │ generate  │ │ simulate │ │    deploy    │ │  ║
-    ║   │  │ scaffold │ │   config  │ │  virtual │ │    push &    │ │  ║
-    ║   │  │ project  │ │ per-hw    │ │  network │ │   provision  │ │  ║
-    ║   │  └──────────┘ └───────────┘ └──────────┘ └──────────────┘ │  ║
-    ║   │                                                             │  ║
-    ║   │  ┌──────────┐ ┌───────────┐ ┌──────────┐                  │  ║
-    ║   │  │  monitor │ │   test    │ │ validate │                  │  ║
-    ║   │  │   TUI    │ │  network  │ │  configs │                  │  ║
-    ║   │  │dashboard │ │  health   │ │  & specs │                  │  ║
-    ║   │  └──────────┘ └───────────┘ └──────────┘                  │  ║
-    ║   │                                                             │  ║
-    ║   │  ┌───────────────────────────────────────────────────────┐  │  ║
-    ║   │  │              Config Layer (TOML + Templates)          │  │  ║
-    ║   │  └───────────────────────────────────────────────────────┘  │  ║
-    ║   └─────────────────────────────────────────────────────────────┘  ║
-    ╚═════════════════════════════════════════════════════════════════════╝
-```
-
-## Overview
-
-Reticulum Forge is a CLI toolkit for building, testing, simulating, and deploying [Reticulum](https://reticulum.network/) mesh networks. Think of it as **terraform for mesh networks** — define your desired network topology in config, simulate it locally, validate it, then deploy to physical nodes.
-
-Built in **Rust** for performance, reliability, and cross-platform support (Linux, macOS, Windows, ARM).
-
-## Features
-
-### 🏗️ `forge init` — Project Scaffolding
-- Bootstrap a new Reticulum network project with directory structure
-- Generate default config templates for common topologies (star, mesh, chain)
-- Create node definitions, interface configs, and deployment manifests
-
-### ⚡ `forge generate` — Config Generation
-- Generate Reticulum interface configs for specific hardware:
-  - **RNode** (LoRa) — frequency, bandwidth, TX power, spreading factor
-  - **Serial** (TNC, KISS) — baud rate, port, flow control
-  - **TCP** — host, port, peering credentials
-  - **AutoInterface** — group ID, multicast settings
-- Output in Reticulum's native config format or JSON/YAML
-- Hardware database with validated parameter ranges
-
-### 🔬 `forge simulate` — Network Simulator
-- Spin up virtual Reticulum nodes in-process (no hardware needed)
-- Define topology: mesh, star, ring, custom graph
-- Simulate link quality, latency, packet loss
-- Test announce propagation, path discovery, and LXMF routing
-- Visualize simulation results as DOT/Graphviz graphs
-- Fast — thousands of virtual packets per second
-
-### 🚀 `forge deploy` — Deployment Automation
-- Push validated configs to remote nodes via SSH or Reticulum
-- Rolling deployments with health checks
-- Rollback on failure
-- Provision new nodes from scratch (install RNS, configure systemd, deploy config)
-- Inventory management — track your fleet of nodes
-
-### ✅ `forge test` — Network Validation
-- Verify config syntax and semantic correctness
-- Test connectivity between node pairs
-- Measure latency, throughput, and packet loss
-- Validate against network policies (encryption requirements, allowed interfaces)
-- CI-friendly output (TAP, JUnit XML)
-
-### 📊 `forge monitor` — Real-Time TUI Dashboard
-- Terminal UI showing live network health
-- Node status grid with color-coded indicators
-- Bandwidth graphs, link quality heatmaps
-- Event log with filtering
-- Runs over SSH for remote monitoring
-
-## Tech Stack
-
-| Component     | Technology                    |
-|--------------|-------------------------------|
-| Language      | Rust 1.80+                    |
-| CLI           | Clap 4 (derive macros)        |
-| Async Runtime | Tokio                         |
-| Serialization | serde (TOML, JSON, YAML)      |
-| TUI           | ratatui                       |
-| SSH           | russh                         |
-| Templating    | Tera                          |
-| Graphviz      | petgraph                      |
-| Testing       | assert_cmd, proptest          |
+[![CI](https://github.com/synthalorian/reticulum-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/synthalorian/reticulum-forge/actions/workflows/ci.yml)
+![Rust](https://img.shields.io/badge/rust-1.80%2B-orange)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 
 ## Quick Start
 
@@ -123,7 +29,7 @@ forge init my-mesh-network
 cd my-mesh-network
 
 # Generate interface configs for LoRa nodes
-forge generate --hardware rnode-lora --freq 868mhz --bw 125khz --sf 10
+forge generate --hardware rnode-lora --param freq=868mhz --param bw=125khz --param sf=10
 
 # Simulate a 20-node mesh network
 forge simulate --nodes 20 --topology mesh --duration 60s
@@ -143,21 +49,72 @@ forge monitor
 ```
 reticulum-forge/
 ├── src/
-│   ├── main.rs            # Entry point
-│   ├── cli.rs             # Clap CLI definitions
-│   ├── config.rs          # Config loading & validation
-│   ├── simulate/          # Network simulator engine
-│   ├── deploy/            # SSH/Reticulum deployment
-│   ├── monitor/           # TUI dashboard
-│   └── generate/          # Config generation templates
-├── tests/                 # Integration tests
+│   ├── main.rs              # Entry point
+│   ├── cli.rs               # Clap CLI definitions
+│   ├── config.rs            # Config loading & validation
+│   ├── error.rs             # Error types
+│   ├── template.rs          # Tera template engine
+│   ├── test_runner.rs       # Test orchestration
+│   ├── policy.rs            # Network policy checks
+│   ├── commands/            # Subcommand implementations
+│   │   ├── init.rs          # forge init
+│   │   ├── generate.rs      # forge generate
+│   │   ├── simulate.rs      # forge simulate
+│   │   ├── deploy.rs        # forge deploy
+│   │   ├── test.rs          # forge test
+│   │   └── monitor.rs       # forge monitor
+│   ├── generate/            # Config generation (stub)
+│   ├── hardware/            # Hardware specs & validation
+│   ├── simulate/            # Network simulator engine
+│   ├── deploy/              # SSH deployment & provisioning
+│   ├── monitor/             # TUI dashboard
+│   └── checks/              # Graph-based network checks
+├── tests/
+│   └── cli_tests.rs         # Integration tests (48)
+├── justfile                 # Build/release/test automation
+├── .github/workflows/       # CI pipeline
 ├── Cargo.toml
+├── PLAN.md                  # Implementation plan & status
 └── README.md
+```
+
+### Commands
+
+| Command | Status | Description |
+|---------|--------|-------------|
+| `forge init` | ✅ | Scaffold a new Reticulum network project |
+| `forge generate` | ✅ | Generate interface configs for 5 hardware types |
+| `forge simulate` | ✅ | Run virtual mesh network simulations (4 topologies) |
+| `forge test` | ✅ | Connectivity, latency, redundancy, and policy checks (4 formats) |
+| `forge deploy` | ✅ | SSH-based rolling deployment with rollback and provisioning |
+| `forge monitor` | ✅ | Real-time TUI dashboard with SSH health polling |
+
+### Tech Stack
+
+| Component     | Technology                    |
+|--------------|-------------------------------|
+| Language      | Rust 1.80+                    |
+| CLI           | Clap 4 (derive macros)        |
+| Async Runtime | Tokio                         |
+| Serialization | serde (TOML, JSON, YAML)      |
+| TUI           | ratatui + crossterm           |
+| SSH           | russh                         |
+| Templating    | Tera                          |
+| Graph         | petgraph                      |
+| Testing       | assert_cmd, proptest          |
+
+## Development
+
+```bash
+just check    # fmt + clippy + test
+just build    # release build
+just audit    # security audit
+just watch    # auto-run tests on change
 ```
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+Apache License 2.0
 
 ## Credits
 
