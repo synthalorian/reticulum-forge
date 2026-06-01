@@ -88,6 +88,8 @@ reticulum-forge/
 | `forge test` | ✅ | Connectivity, latency, redundancy, and policy checks (4 formats) |
 | `forge deploy` | ✅ | SSH-based rolling deployment with rollback and provisioning |
 | `forge monitor` | ✅ | Real-time TUI dashboard with SSH health polling |
+| `forge completions` | ✅ | Shell completions for bash, zsh, fish, PowerShell |
+| `forge man` | ✅ | Generate man page from CLI definitions |
 
 ### Tech Stack
 

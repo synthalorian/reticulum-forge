@@ -1,0 +1,345 @@
+#compdef forge
+
+autoload -U is-at-least
+
+_forge() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_forge_commands" \
+"*::: :->forge" \
+&& ret=0
+    case $state in
+    (forge)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:forge-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+'-t+[Network topology template]:TOPOLOGY:_default' \
+'--topology=[Network topology template]:TOPOLOGY:_default' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':name -- Project name (alphanumeric, hyphens, underscores; no path separators):_default' \
+&& ret=0
+;;
+(generate)
+_arguments "${_arguments_options[@]}" : \
+'-H+[Hardware type (rnode-lora, serial, tcp-client, tcp-server, auto)]:HARDWARE:_default' \
+'--hardware=[Hardware type (rnode-lora, serial, tcp-client, tcp-server, auto)]:HARDWARE:_default' \
+'-n+[Interface name (alphanumeric, hyphens, underscores)]:NAME:_default' \
+'--name=[Interface name (alphanumeric, hyphens, underscores)]:NAME:_default' \
+'-f+[Output format (reticulum, json, yaml)]:FORMAT:_default' \
+'--format=[Output format (reticulum, json, yaml)]:FORMAT:_default' \
+'-o+[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--output=[Output file path (default\: stdout)]:OUTPUT:_files' \
+'*-P+[Hardware-specific parameters as key=value pairs, e.g. -P freq=868mhz -P bw=125khz]:PARAM:_default' \
+'*--param=[Hardware-specific parameters as key=value pairs, e.g. -P freq=868mhz -P bw=125khz]:PARAM:_default' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(simulate)
+_arguments "${_arguments_options[@]}" : \
+'-n+[Number of virtual nodes]:NODES:_default' \
+'--nodes=[Number of virtual nodes]:NODES:_default' \
+'-t+[Network topology (mesh, star, ring, chain)]:TOPOLOGY:_default' \
+'--topology=[Network topology (mesh, star, ring, chain)]:TOPOLOGY:_default' \
+'-d+[Simulation duration (e.g. 30s, 5m, 1h)]:DURATION:_default' \
+'--duration=[Simulation duration (e.g. 30s, 5m, 1h)]:DURATION:_default' \
+'-Q+[Link quality (excellent, good, moderate, poor)]:QUALITY:_default' \
+'--quality=[Link quality (excellent, good, moderate, poor)]:QUALITY:_default' \
+'-f+[Output format (table, json, dot)]:FORMAT:_default' \
+'--format=[Output format (table, json, dot)]:FORMAT:_default' \
+'-o+[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--output=[Output file path (default\: stdout)]:OUTPUT:_files' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(deploy)
+_arguments "${_arguments_options[@]}" : \
+'-i+[Inventory file path (nodes.toml)]:INVENTORY:_default' \
+'--inventory=[Inventory file path (nodes.toml)]:INVENTORY:_default' \
+'-c+[Parallel deployment concurrency (max 32)]:CONCURRENCY:_default' \
+'--concurrency=[Parallel deployment concurrency (max 32)]:CONCURRENCY:_default' \
+'-t+[Tag filter — only deploy nodes with this tag]:TAG:_default' \
+'--tag=[Tag filter — only deploy nodes with this tag]:TAG:_default' \
+'--config=[Config content to deploy (from file or stdin)]:CONFIG:_default' \
+'-f+[Output format (table, json)]:FORMAT:_default' \
+'--format=[Output format (table, json)]:FORMAT:_default' \
+'-o+[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--output=[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--dry-run[Dry run (show what would be deployed, no remote changes)]' \
+'--provision[Full provisioning (install Python, RNS, enable service)]' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(test)
+_arguments "${_arguments_options[@]}" : \
+'--check=[Check type (connectivity, latency, redundancy, policies, all)]:CHECK:_default' \
+'--threshold=[Latency threshold in milliseconds]:THRESHOLD:_default' \
+'-c+[Config file path (forge.toml)]:CONFIG:_default' \
+'--config=[Config file path (forge.toml)]:CONFIG:_default' \
+'-f+[Output format (table, json, tap, junit)]:FORMAT:_default' \
+'--format=[Output format (table, json, tap, junit)]:FORMAT:_default' \
+'-o+[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--output=[Output file path (default\: stdout)]:OUTPUT:_files' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(monitor)
+_arguments "${_arguments_options[@]}" : \
+'-I+[Inventory file path (nodes.toml)]:INVENTORY:_default' \
+'--inventory=[Inventory file path (nodes.toml)]:INVENTORY:_default' \
+'-i+[Refresh interval in seconds]:INTERVAL:_default' \
+'--interval=[Refresh interval in seconds]:INTERVAL:_default' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+':shell -- Target shell:(bash elvish fish powershell zsh)' \
+&& ret=0
+;;
+(man)
+_arguments "${_arguments_options[@]}" : \
+'-o+[Output file path (default\: stdout)]:OUTPUT:_files' \
+'--output=[Output file path (default\: stdout)]:OUTPUT:_files' \
+'-v[Enable verbose logging]' \
+'--verbose[Enable verbose logging]' \
+'-q[Suppress all output except errors]' \
+'--quiet[Suppress all output except errors]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_forge__subcmd__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:forge-help-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(generate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(simulate)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(deploy)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(test)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(monitor)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(man)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_forge_commands] )) ||
+_forge_commands() {
+    local commands; commands=(
+'init:Initialize a new Reticulum network project' \
+'generate:Generate interface configs for hardware' \
+'simulate:Simulate a virtual Reticulum network' \
+'deploy:Deploy configs to remote nodes' \
+'test:Test network config, connectivity, and policies' \
+'monitor:Real-time network health dashboard (TUI)' \
+'completions:Generate shell completions for bash, zsh, fish, or PowerShell' \
+'man:Generate man page for forge' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'forge commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__completions_commands] )) ||
+_forge__subcmd__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge completions commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__deploy_commands] )) ||
+_forge__subcmd__deploy_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge deploy commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__generate_commands] )) ||
+_forge__subcmd__generate_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge generate commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help_commands] )) ||
+_forge__subcmd__help_commands() {
+    local commands; commands=(
+'init:Initialize a new Reticulum network project' \
+'generate:Generate interface configs for hardware' \
+'simulate:Simulate a virtual Reticulum network' \
+'deploy:Deploy configs to remote nodes' \
+'test:Test network config, connectivity, and policies' \
+'monitor:Real-time network health dashboard (TUI)' \
+'completions:Generate shell completions for bash, zsh, fish, or PowerShell' \
+'man:Generate man page for forge' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'forge help commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__completions_commands] )) ||
+_forge__subcmd__help__subcmd__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help completions commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__deploy_commands] )) ||
+_forge__subcmd__help__subcmd__deploy_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help deploy commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__generate_commands] )) ||
+_forge__subcmd__help__subcmd__generate_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help generate commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__help_commands] )) ||
+_forge__subcmd__help__subcmd__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help help commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__init_commands] )) ||
+_forge__subcmd__help__subcmd__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help init commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__man_commands] )) ||
+_forge__subcmd__help__subcmd__man_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help man commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__monitor_commands] )) ||
+_forge__subcmd__help__subcmd__monitor_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help monitor commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__simulate_commands] )) ||
+_forge__subcmd__help__subcmd__simulate_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help simulate commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__help__subcmd__test_commands] )) ||
+_forge__subcmd__help__subcmd__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge help test commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__init_commands] )) ||
+_forge__subcmd__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge init commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__man_commands] )) ||
+_forge__subcmd__man_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge man commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__monitor_commands] )) ||
+_forge__subcmd__monitor_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge monitor commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__simulate_commands] )) ||
+_forge__subcmd__simulate_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge simulate commands' commands "$@"
+}
+(( $+functions[_forge__subcmd__test_commands] )) ||
+_forge__subcmd__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'forge test commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_forge" ]; then
+    _forge "$@"
+else
+    compdef _forge forge
+fi
