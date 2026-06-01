@@ -34,7 +34,14 @@ completions:
     @cargo run -- completions bash > completions/forge.bash
     @cargo run -- completions zsh > completions/_forge
     @cargo run -- completions fish > completions/forge.fish
+    @cargo run -- completions powershell > completions/_forge.ps1
     @echo "Completions written to completions/"
+
+# Generate man page
+man:
+    @mkdir -p man
+    @cargo run -- man -o man/forge.1
+    @echo "Man page written to man/forge.1"
 
 # Strip and compress the release binary
 release: build
@@ -64,11 +71,11 @@ install:
 
 # Cross-compile for ARM64 (Raspberry Pi, etc.)
 cross-arm64:
-    cross build --target aarch64-unknown-linux-gnu --release
+    rustup run stable RUSTFLAGS="-C linker=aarch64-linux-gnu-gcc" cargo build --target aarch64-unknown-linux-gnu --release
 
 # Cross-compile statically linked
 cross-musl:
-    cross build --target x86_64-unknown-linux-musl --release
+    rustup run stable RUSTFLAGS="-C target-feature=+crt-static" cargo build --target x86_64-unknown-linux-musl --release
 
 # Generate docs
 doc:

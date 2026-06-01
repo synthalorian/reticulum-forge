@@ -6,7 +6,10 @@
 //! - File path args are checked for directory traversal in command implementations.
 //! - --quiet suppresses non-error output; --verbose enables debug tracing only.
 
-use clap::{Parser, Subcommand};
+use clap::{CommandFactory, Parser, Subcommand};
+use clap_complete::{generate, Shell};
+use clap_mangen::Man;
+use std::io;
 use std::path::PathBuf;
 use tracing_subscriber::EnvFilter;
 
@@ -173,11 +176,25 @@ pub enum Commands {
     /// Real-time network health dashboard (TUI)
     Monitor {
         /// Inventory file path (nodes.toml)
-        #[arg(short, long, default_value = "nodes.toml")]
+        #[arg(short = 'I', long, default_value = "nodes.toml")]
         inventory: String,
         /// Refresh interval in seconds
         #[arg(short, long, default_value = "10")]
         interval: u64,
+    },
+
+    /// Generate shell completions for bash, zsh, fish, or PowerShell
+    Completions {
+        /// Target shell
+        #[arg(value_enum)]
+        shell: Shell,
+    },
+
+    /// Generate man page for forge
+    Man {
+        /// Output file path (default: stdout)
+        #[arg(short, long)]
+        output: Option<PathBuf>,
     },
 }
 
@@ -287,6 +304,21 @@ pub fn run() -> anyhow::Result<()> {
             interval: _,
         } => {
             crate::commands::monitor::execute(&inventory)?;
+        }
+        Commands::Completions { shell } => {
+            let mut cmd = Cli::command();
+            let name = cmd.get_name().to_string();
+            generate(shell, &mut cmd, name, &mut io::stdout());
+        }
+        Commands::Man { output } => {
+            let cmd = Cli::command();
+            let man = Man::new(cmd);
+            if let Some(path) = output {
+                let mut file = std::fs::File::create(path)?;
+                man.render(&mut file)?;
+            } else {
+                man.render(&mut io::stdout())?;
+            }
         }
     }
 
