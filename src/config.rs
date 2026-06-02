@@ -135,7 +135,7 @@ impl ForgeConfig {
         ForgeConfig {
             project: ProjectConfig {
                 name: name.to_string(),
-                version: Some("0.1.0".into()),
+                version: Some("1.0.0".into()),
                 description: Some(format!(
                     "Reticulum network project '{}' with {} topology",
                     name, topology
