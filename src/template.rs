@@ -13,7 +13,7 @@ use tera::{Context, Tera};
 const FORGE_TOML_TEMPLATE: &str = r#"
 [project]
 name = "{{ project_name }}"
-version = "0.1.0"
+version = "1.0.0"
 description = "{{ description }}"
 topology = "{{ topology }}"
 

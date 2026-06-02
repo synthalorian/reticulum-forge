@@ -1,6 +1,6 @@
 # Maintainer: Carter <synthalorian@proton.me>
 pkgname=reticulum-forge
-pkgver=0.1.0
+pkgver=1.0.0
 pkgrel=1
 pkgdesc="CLI toolkit for building, testing, and deploying Reticulum mesh networks"
 arch=('x86_64' 'aarch64')
