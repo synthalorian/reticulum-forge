@@ -18,6 +18,8 @@ use std::time::Duration;
 /// * `topology_name` — "mesh", "star", "ring", or "chain".
 /// * `duration_str` — e.g. "30s", "5m", "1h".
 /// * `link_quality` — "excellent", "good", "moderate", "poor".
+/// * `data_interval_str` — e.g. "1s", "100ms" for data packet generation interval.
+/// * `packets_per_cycle` — packets to send per node pair per interval.
 /// * `format` — "table", "json", or "dot".
 /// * `output` — optional file path (default: stdout).
 pub fn execute(
@@ -25,6 +27,8 @@ pub fn execute(
     topology_name: &str,
     duration_str: &str,
     link_quality: &str,
+    data_interval_str: Option<&str>,
+    packets_per_cycle: Option<usize>,
     format: &str,
     output: Option<&Path>,
 ) -> ForgeResult<()> {
@@ -107,8 +111,13 @@ pub fn execute(
 
     // 2. Run simulation
     pb.set_message("Running simulation...");
+    let data_interval = data_interval_str
+        .and_then(parse_duration)
+        .unwrap_or_else(|| Duration::from_secs(5));
     let sim_config = SimConfig {
         duration,
+        data_interval,
+        packets_per_cycle: packets_per_cycle.unwrap_or(3),
         ..Default::default()
     };
     let mut engine = SimEngine::new(topology, sim_config);

@@ -118,6 +118,12 @@ pub enum Commands {
         /// Link quality (excellent, good, moderate, poor)
         #[arg(short = 'Q', long, default_value = "good")]
         quality: String,
+        /// Data packet generation interval (e.g. 1s, 100ms)
+        #[arg(short = 'I', long, default_value = "5s")]
+        data_interval: String,
+        /// Packets to send per node pair per interval
+        #[arg(short = 'P', long, default_value = "3")]
+        packets_per_cycle: usize,
         /// Output format (table, json, dot)
         #[arg(short, long, default_value = "table")]
         format: String,
@@ -257,6 +263,8 @@ pub fn run() -> anyhow::Result<()> {
             topology,
             duration,
             quality,
+            data_interval,
+            packets_per_cycle,
             format,
             output,
         } => {
@@ -265,6 +273,8 @@ pub fn run() -> anyhow::Result<()> {
                 &topology,
                 &duration,
                 &quality,
+                Some(&data_interval),
+                Some(packets_per_cycle),
                 &format,
                 output.as_deref(),
             )?;
