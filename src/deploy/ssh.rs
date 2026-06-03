@@ -190,13 +190,25 @@ impl SshClient {
                 }
                 russh::ChannelMsg::ExitStatus { exit_status } => {
                     exit_code = Some(exit_status);
+                    // russh may send Eof/Close after ExitStatus — keep reading
+                    // until the channel actually closes to capture all output.
                 }
-                russh::ChannelMsg::Eof | russh::ChannelMsg::Close => break,
+                russh::ChannelMsg::Eof | russh::ChannelMsg::Close => {
+                    // Only break if we've already seen the exit status.
+                    // Some russh versions send Close before ExitStatus.
+                    if exit_code.is_some() {
+                        break;
+                    }
+                }
                 _ => {}
             }
         }
 
-        let code = exit_code.unwrap_or(255);
+        // If we never got an ExitStatus but the channel closed cleanly
+        // and there's no stderr, treat as success (exit 0).
+        let code = exit_code.unwrap_or_else(|| {
+            if stderr.is_empty() { 0 } else { 255 }
+        });
         Ok(SshResult {
             exit_code: code,
             stdout: String::from_utf8_lossy(&stdout).into_owned(),
