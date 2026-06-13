@@ -23,9 +23,6 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-/// Frequency of automatic background health polls.
-const POLL_INTERVAL: Duration = Duration::from_secs(10);
-
 /// Frequency of checking for new poll results.
 const TICK_INTERVAL: Duration = Duration::from_millis(100);
 
@@ -50,8 +47,9 @@ impl Drop for TerminalGuard {
     }
 }
 
-/// Run the TUI monitor with the given inventory.
-pub fn run_monitor(inventory: Arc<Inventory>) -> io::Result<()> {
+/// Run the TUI monitor with the given inventory and poll interval.
+pub fn run_monitor(inventory: Arc<Inventory>, poll_interval_secs: u64) -> io::Result<()> {
+    let poll_interval = Duration::from_secs(poll_interval_secs.max(1));
     let _guard = TerminalGuard::new()?;
 
     let backend = CrosstermBackend::new(io::stdout());
@@ -82,7 +80,7 @@ pub fn run_monitor(inventory: Arc<Inventory>) -> io::Result<()> {
         let mut last_poll_times: Vec<std::time::Instant> = Vec::new();
 
         while running_clone.load(Ordering::Relaxed) {
-            thread::sleep(POLL_INTERVAL);
+            thread::sleep(poll_interval);
 
             if !running_clone.load(Ordering::Relaxed) {
                 break;

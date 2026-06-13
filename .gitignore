@@ -14,3 +14,9 @@ Thumbs.db
 
 # Env
 .env
+
+# AI session artifacts
+.sandbox-home/
+.claw/
+.omo/
+.clawd-todos.json

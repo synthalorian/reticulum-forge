@@ -1,3 +1,7 @@
+//! TUI rendering for the monitor dashboard.
+//!
+//! Draws the summary bar, node list, detail panel, and event log using ratatui.
+
 use crate::monitor::node_status::{AppStatus, MonitorState};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},

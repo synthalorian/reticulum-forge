@@ -33,7 +33,16 @@ pub fn check_latency(
         ..Default::default()
     };
     let mut engine = SimEngine::new(topology, sim_config);
-    let rt = tokio::runtime::Runtime::new().unwrap();
+    let rt = match tokio::runtime::Runtime::new() {
+        Ok(r) => r,
+        Err(e) => {
+            return vec![CheckResult::error(
+                CheckCategory::Latency,
+                "runtime-error",
+                &format!("failed to create tokio runtime: {}", e),
+            )];
+        }
+    };
     let report = rt.block_on(async { engine.run().await });
 
     let metrics = &report.metrics;

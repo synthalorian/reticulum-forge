@@ -193,20 +193,19 @@ impl SshClient {
                     // russh may send Eof/Close after ExitStatus — keep reading
                     // until the channel actually closes to capture all output.
                 }
-                russh::ChannelMsg::Eof | russh::ChannelMsg::Close => {
+                russh::ChannelMsg::Eof | russh::ChannelMsg::Close
                     // Only break if we've already seen the exit status.
                     // Some russh versions send Close before ExitStatus.
-                    if exit_code.is_some() {
+                    if exit_code.is_some() => {
                         break;
                     }
-                }
                 _ => {}
             }
         }
 
         // If we never got an ExitStatus but the channel closed cleanly
         // and there's no stderr, treat as success (exit 0).
-        let code = exit_code.unwrap_or_else(|| {
+        let code = exit_code.unwrap_or({
             if stderr.is_empty() { 0 } else { 255 }
         });
         Ok(SshResult {
@@ -247,10 +246,14 @@ impl SshClient {
             }
         }
 
-        let delimiter = "FORGE_EOF_266290a4b8e811f0";
+        // Security: use printf with single-quoted content to avoid heredoc
+        // delimiter collision and shell injection. Single quotes inside the
+        // content are escaped by ending the quote, inserting a literal quote,
+        // and starting a new quote.
+        let escaped = content.replace('\'', "'\\''");
         let write_cmd = format!(
-            "cat > {} << '{}'\n{}\n{}\nchmod 644 {}",
-            remote_path, delimiter, content, delimiter, remote_path
+            "printf '%s' '{}' > {} && chmod 644 {}",
+            escaped, remote_path, remote_path
         );
         let res = self.execute(&write_cmd).await?;
         if !res.success() {

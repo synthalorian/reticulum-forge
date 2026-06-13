@@ -13,6 +13,7 @@ use std::path::Path;
 use std::time::Duration;
 
 /// Run the simulation command.
+#[expect(clippy::too_many_arguments)]
 ///
 /// * `node_count` — number of virtual nodes.
 /// * `topology_name` — "mesh", "star", "ring", or "chain".
@@ -83,7 +84,7 @@ pub fn execute(
     pb.set_style(
         ProgressStyle::default_spinner()
             .template("{spinner:.green} {msg}")
-            .unwrap()
+            .expect("static template is valid")
             .tick_strings(&[
                 "▹▹▹▹▹",
                 "▸▹▹▹▹",
@@ -130,7 +131,7 @@ pub fn execute(
     pb.set_message("Formatting results...");
     let output_content: String = match format.as_str() {
         "table" => report.to_table(),
-        "json" => report.to_json().map_err(ForgeError::SerdeJson)?,
+        "json" => report.to_json()?,
         "dot" => report.to_dot(),
         _ => unreachable!(),
     };

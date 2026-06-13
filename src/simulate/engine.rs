@@ -128,7 +128,10 @@ impl SimEngine {
                         announce.hops = hop;
 
                         // Check packet loss on the link between current and neighbor
-                        let link_idx = self.link_between(&current_id, neighbor_id);
+                        let Some(link_idx) = self.link_between(&current_id, neighbor_id) else {
+                            self.metrics.record_lost();
+                            continue; // no link found — announce lost
+                        };
                         let link = &self.links[link_idx];
                         let mut rng = rand::thread_rng();
                         if link.is_packet_lost(&mut || rng.gen()) {
@@ -187,7 +190,10 @@ impl SimEngine {
 
                 // Generate packet from src
                 let packet = {
-                    let src_node = self.nodes.get(src_id).unwrap();
+                    let src_node = match self.nodes.get(src_id) {
+                        Some(n) => n,
+                        None => continue,
+                    };
                     match src_node.generate_packet(&mut self.packet_id_counter, dst_id, "data") {
                         Some(p) => p,
                         None => continue, // no route to dst
@@ -218,7 +224,10 @@ impl SimEngine {
             };
 
             // Find the link between current and next_hop
-            let link_idx = self.link_between(&current, &next_hop);
+            let Some(link_idx) = self.link_between(&current, &next_hop) else {
+                self.metrics.record_lost();
+                return None;
+            };
             let link = &self.links[link_idx];
 
             // Check packet loss
@@ -265,13 +274,13 @@ impl SimEngine {
         neighbors
     }
 
-    fn link_between(&self, a: &str, b: &str) -> usize {
+    fn link_between(&self, a: &str, b: &str) -> Option<usize> {
         for (idx, link) in self.links.iter().enumerate() {
             if (link.node_a == a && link.node_b == b) || (link.node_a == b && link.node_b == a) {
-                return idx;
+                return Some(idx);
             }
         }
-        panic!("no link between {} and {}", a, b);
+        None
     }
 }
 

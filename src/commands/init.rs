@@ -40,7 +40,7 @@ pub fn execute(name: &str, topology: &str) -> ForgeResult<()> {
     pb.set_style(
         ProgressStyle::default_spinner()
             .template("{spinner:.green} {msg}")
-            .unwrap()
+            .expect("static template is valid")
             .tick_strings(&[
                 "▹▹▹▹▹",
                 "▸▹▹▹▹",
