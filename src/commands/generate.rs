@@ -88,7 +88,7 @@ pub fn execute(
     pb.set_style(
         ProgressStyle::default_spinner()
             .template("{spinner:.green} {msg}")
-            .unwrap()
+            .expect("static template is valid")
             .tick_strings(&[
                 "▹▹▹▹▹",
                 "▸▹▹▹▹",
@@ -193,7 +193,7 @@ fn sanitize_interface_name(name: &str) -> ForgeResult<String> {
         ));
     }
 
-    if !sanitized.chars().next().unwrap().is_alphabetic() {
+    if !sanitized.chars().next().is_some_and(|c| c.is_alphabetic()) {
         return Err(ForgeError::Validation(
             "interface name must start with a letter".into(),
         ));

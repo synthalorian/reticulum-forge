@@ -2,6 +2,13 @@
 //!
 //! Each hardware type defines its supported parameters, types, and validation
 //! rules. This is the source of truth for `forge generate`.
+//!
+//! # Supported Hardware
+//! - RNode LoRa (long-range radio)
+//! - Serial TNC / KISS (serial port modem)
+//! - TCP Client (outbound internet/LAN peering)
+//! - TCP Server (inbound listener)
+//! - AutoInterface (local multicast discovery)
 
 use std::fmt;
 

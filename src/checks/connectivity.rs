@@ -93,9 +93,8 @@ pub fn check_connectivity(topology_edges: &[(&str, &str)]) -> Vec<CheckResult> {
         let mut unreachable_pairs = Vec::new();
 
         for (i, &a) in indices.iter().enumerate() {
-            for &b in indices.iter().skip(i + 1) {
+            for (j, &b) in indices.iter().enumerate().skip(i + 1) {
                 if !has_path_connecting(&graph, a, b, None) {
-                    let j = indices.iter().position(|&x| x == b).unwrap();
                     unreachable_pairs.push(format!("{} <-> {}", node_names[i], node_names[j]));
                 }
             }
@@ -152,11 +151,12 @@ fn build_graph(
         graph.add_edge(na, nb, ());
     }
 
+    let mut seen = std::collections::HashSet::new();
     for (a, b) in edges {
-        if !node_names.contains(&a.to_string()) {
+        if seen.insert(a.to_string()) {
             node_names.push(a.to_string());
         }
-        if !node_names.contains(&b.to_string()) {
+        if seen.insert(b.to_string()) {
             node_names.push(b.to_string());
         }
     }

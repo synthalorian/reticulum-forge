@@ -85,8 +85,8 @@ impl SimulationReport {
     }
 
     /// Render the report as pretty JSON.
-    pub fn to_json(&self) -> serde_json::Result<String> {
-        serde_json::to_string_pretty(self)
+    pub fn to_json(&self) -> crate::error::ForgeResult<String> {
+        serde_json::to_string_pretty(self).map_err(crate::error::ForgeError::SerdeJson)
     }
 
     /// Render a DOT (Graphviz) representation of the topology with metrics overlay.
@@ -158,7 +158,7 @@ mod tests {
     #[test]
     fn test_json_output() {
         let report = sample_report();
-        let json = report.to_json().unwrap();
+        let json = report.to_json().expect("JSON serialization should succeed");
         assert!(json.contains("node_count"));
         assert!(json.contains("link_count"));
         assert!(json.contains("packets_delivered"));

@@ -1,3 +1,7 @@
+//! Test runner for `forge test` — orchestrates network checks and formats results.
+//!
+//! Supports four output formats: table, JSON, TAP, and JUnit.
+
 use crate::checks::connectivity;
 use crate::checks::latency;
 use crate::checks::{CheckResult, CheckStatus};
@@ -121,7 +125,7 @@ pub fn format_table(report: &TestReport) -> String {
         report.summary.errors,
         report.summary.total
     )
-    .unwrap();
+    .expect("write to String never fails");
 
     use std::collections::BTreeMap;
     let mut by_cat: BTreeMap<String, (usize, usize, usize, usize)> = BTreeMap::new();
@@ -143,11 +147,11 @@ pub fn format_table(report: &TestReport) -> String {
             "  {}: {}/{} passed ({} failed, {} warnings)",
             cat, pass, total, fail, warn
         )
-        .unwrap();
+        .expect("write to String never fails");
     }
 
     if !report.checks.is_empty() {
-        writeln!(output, "\n---").unwrap();
+        writeln!(output, "\n---").expect("write to String never fails");
     }
 
     for check in &report.checks {
@@ -157,9 +161,9 @@ pub fn format_table(report: &TestReport) -> String {
             CheckStatus::Warning => "⚠",
             CheckStatus::Error => "!",
         };
-        writeln!(output, "{} [{}] {}", icon, check.name, check.message).unwrap();
+        writeln!(output, "{} [{}] {}", icon, check.name, check.message).expect("write to String never fails");
         if let Some(ref details) = check.details {
-            writeln!(output, "    {}", details).unwrap();
+            writeln!(output, "    {}", details).expect("write to String never fails");
         }
     }
 
@@ -173,15 +177,15 @@ pub fn format_json(report: &TestReport) -> ForgeResult<String> {
 pub fn format_tap(report: &TestReport) -> String {
     use std::fmt::Write;
     let mut output = String::new();
-    writeln!(output, "1..{}", report.checks.len()).unwrap();
+    writeln!(output, "1..{}", report.checks.len()).expect("write to String never fails");
     for (i, check) in report.checks.iter().enumerate() {
         let ok = match check.status {
             CheckStatus::Pass => "ok",
             _ => "not ok",
         };
-        writeln!(output, "{} {} - {}", ok, i + 1, check.name).unwrap();
+        writeln!(output, "{} {} - {}", ok, i + 1, check.name).expect("write to String never fails");
         if let Some(ref details) = check.details {
-            writeln!(output, "# {}", details).unwrap();
+            writeln!(output, "# {}", details).expect("write to String never fails");
         }
     }
     output
@@ -191,13 +195,13 @@ pub fn format_junit(report: &TestReport) -> ForgeResult<String> {
     let mut output = String::new();
     use std::fmt::Write;
 
-    writeln!(output, r#"<?xml version="1.0" encoding="UTF-8"?>"#).unwrap();
+    writeln!(output, r#"<?xml version="1.0" encoding="UTF-8"?>"#).expect("write to String never fails");
     writeln!(
         output,
         r#"<testsuite name="forge.test" tests="{}" failures="{}" errors="{}">"#,
         report.summary.total, report.summary.failed, report.summary.errors
     )
-    .unwrap();
+    .expect("write to String never fails");
 
     for check in &report.checks {
         let cat = format!("{:?}", check.category).to_lowercase();
@@ -207,7 +211,7 @@ pub fn format_junit(report: &TestReport) -> ForgeResult<String> {
                 r#"  <testcase classname="forge.{}" name="{}" />"#,
                 cat, check.name
             )
-            .unwrap();
+            .expect("write to String never fails");
         } else {
             let status_type = match check.status {
                 CheckStatus::Fail => r#" type="failure""#,
@@ -219,27 +223,27 @@ pub fn format_junit(report: &TestReport) -> ForgeResult<String> {
                 r#"  <testcase classname="forge.{}" name="{}">"#,
                 cat, check.name
             )
-            .unwrap();
+            .expect("write to String never fails");
             writeln!(
                 output,
                 r#"    <failure{} message="{}" />"#,
                 status_type,
                 xml_escape(&check.message)
             )
-            .unwrap();
+            .expect("write to String never fails");
             if let Some(ref details) = check.details {
                 writeln!(
                     output,
                     r#"    <system-out>{}</system-out>"#,
                     xml_escape(details)
                 )
-                .unwrap();
+                .expect("write to String never fails");
             }
-            writeln!(output, r#"  </testcase>"#).unwrap();
+            writeln!(output, r#"  </testcase>"#).expect("write to String never fails");
         }
     }
 
-    writeln!(output, r#"</testsuite>"#).unwrap();
+    writeln!(output, r#"</testsuite>"#).expect("write to String never fails");
     Ok(output)
 }
 

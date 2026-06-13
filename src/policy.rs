@@ -1,3 +1,8 @@
+//! Network policy checks for `forge test`.
+//!
+//! Evaluates encryption requirements, single points of failure (cut vertices),
+//! and maximum hop count policies against a simulated network topology.
+
 use crate::checks::redundancy;
 use crate::checks::{CheckCategory, CheckResult};
 use crate::config::ForgeConfig;
@@ -74,7 +79,16 @@ fn check_max_hops(
         ..Default::default()
     };
     let mut engine = SimEngine::new(topology, sim_config);
-    let rt = tokio::runtime::Runtime::new().unwrap();
+    let rt = match tokio::runtime::Runtime::new() {
+        Ok(r) => r,
+        Err(e) => {
+            return CheckResult::error(
+                CheckCategory::Policy,
+                "max-hop-count",
+                &format!("failed to create tokio runtime: {}", e),
+            );
+        }
+    };
     let report = rt.block_on(async { engine.run().await });
 
     let avg_hops = report.metrics.avg_hops();

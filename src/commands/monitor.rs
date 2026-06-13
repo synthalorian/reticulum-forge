@@ -11,7 +11,7 @@ use std::sync::Arc;
 /// # Security
 /// - Inventory path is validated for directory traversal before loading.
 /// - Input length is bounded by the CLI layer.
-pub fn execute(inventory_path: &str) -> ForgeResult<()> {
+pub fn execute(inventory_path: &str, interval: u64) -> ForgeResult<()> {
     // Validate path (no directory traversal)
     if inventory_path.contains("..") {
         return Err(ForgeError::Validation(
@@ -20,6 +20,6 @@ pub fn execute(inventory_path: &str) -> ForgeResult<()> {
     }
 
     let inventory = Inventory::load(inventory_path)?;
-    run_monitor(Arc::new(inventory))?;
+    run_monitor(Arc::new(inventory), interval)?;
     Ok(())
 }

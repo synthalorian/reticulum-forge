@@ -311,9 +311,9 @@ pub fn run() -> anyhow::Result<()> {
         }
         Commands::Monitor {
             inventory,
-            interval: _,
+            interval,
         } => {
-            crate::commands::monitor::execute(&inventory)?;
+            crate::commands::monitor::execute(&inventory, interval)?;
         }
         Commands::Completions { shell } => {
             let mut cmd = Cli::command();

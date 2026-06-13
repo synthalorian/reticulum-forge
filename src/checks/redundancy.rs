@@ -126,6 +126,9 @@ fn find_articulation_points(
         .enumerate()
         .map(|(i, idx)| (idx, i))
         .collect();
+    let usize_to_idx: Vec<NodeIndex> = (0..n)
+        .filter_map(|i| graph.node_indices().nth(i))
+        .collect();
 
     #[expect(clippy::too_many_arguments)]
     fn dfs_ap(
@@ -138,6 +141,7 @@ fn find_articulation_points(
         ap: &mut [bool],
         time: &mut i32,
         idx_to_usize: &HashMap<NodeIndex, usize>,
+        usize_to_idx: &[NodeIndex],
     ) {
         let mut children = 0;
         visited[u] = true;
@@ -145,13 +149,13 @@ fn find_articulation_points(
         disc[u] = *time;
         low[u] = *time;
 
-        let u_node = graph.node_indices().find(|n| idx_to_usize[n] == u).unwrap();
+        let u_node = usize_to_idx[u];
         for v_node in graph.neighbors(u_node) {
             let v = idx_to_usize[&v_node];
             if !visited[v] {
                 children += 1;
                 parent[v] = u as i32;
-                dfs_ap(graph, v, visited, disc, low, parent, ap, time, idx_to_usize);
+                dfs_ap(graph, v, visited, disc, low, parent, ap, time, idx_to_usize, usize_to_idx);
                 low[u] = low[u].min(low[v]);
                 if parent[u] == -1 && children > 1 {
                     ap[u] = true;
@@ -177,6 +181,7 @@ fn find_articulation_points(
                 &mut ap,
                 &mut time,
                 &idx_to_usize,
+                &usize_to_idx,
             );
         }
     }
@@ -219,6 +224,9 @@ fn find_bridges(
         .enumerate()
         .map(|(i, idx)| (idx, i))
         .collect();
+    let e_usize_to_idx: Vec<NodeIndex> = (0..n)
+        .filter_map(|i| graph.node_indices().nth(i))
+        .collect();
 
     #[expect(clippy::too_many_arguments)]
     fn dfs_bridges(
@@ -232,16 +240,14 @@ fn find_bridges(
         bridges: &mut Vec<(String, String)>,
         idx_to_name: &HashMap<NodeIndex, String>,
         e_idx_to_usize: &HashMap<NodeIndex, usize>,
+        e_usize_to_idx: &[NodeIndex],
     ) {
         visited[u] = true;
         *time += 1;
         disc[u] = *time;
         low[u] = *time;
 
-        let u_node = match graph.node_indices().find(|n| e_idx_to_usize[n] == u) {
-            Some(n) => n,
-            None => return,
-        };
+        let u_node = e_usize_to_idx[u];
 
         for v_node in graph.neighbors(u_node) {
             let v = e_idx_to_usize[&v_node];
@@ -258,6 +264,7 @@ fn find_bridges(
                     bridges,
                     idx_to_name,
                     e_idx_to_usize,
+                    e_usize_to_idx,
                 );
                 low[u] = low[u].min(low[v]);
                 if low[v] > disc[u] {
@@ -290,6 +297,7 @@ fn find_bridges(
                 &mut bridges,
                 &idx_to_name,
                 &e_idx_to_usize,
+                &e_usize_to_idx,
             );
         }
     }

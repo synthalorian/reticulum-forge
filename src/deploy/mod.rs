@@ -191,7 +191,15 @@ impl DeployOrchestrator {
                 .await
                 .map_err(|_| ForgeError::Deploy("semaphore acquisition failed".into()))?;
 
-            let node = self.inventory.nodes.get(&node_name).unwrap().clone();
+            let node = match self.inventory.nodes.get(&node_name) {
+                Some(n) => n.clone(),
+                None => {
+                    return Err(ForgeError::Deploy(format!(
+                        "node '{}' not found in inventory (inventory may be corrupted)",
+                        node_name
+                    )));
+                }
+            };
             let config = DeployConfig {
                 provision: self.config.provision,
                 config_content: self.config.config_content.clone(),
@@ -241,7 +249,9 @@ impl DeployOrchestrator {
     fn dry_run_report(&self, node_names: &[String]) -> DeployReport {
         let mut node_results: Vec<DeployNodeResult> = Vec::new();
         for name in node_names {
-            let node = &self.inventory.nodes[name];
+            let Some(node) = self.inventory.nodes.get(name) else {
+                continue;
+            };
             let mut details = format!(
                 "Would deploy to {}@{}:{} (config: {}, service: {})",
                 node.user, node.host, node.port, node.config_path, node.service_name
