@@ -120,4 +120,4 @@ Apache License 2.0
 
 ## Credits
 
-Built by **synth** (synthalorian) with **synthshark**.
+Built by **synth** (synthalorian) with **synthclaw**.
