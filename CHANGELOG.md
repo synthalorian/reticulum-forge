@@ -40,4 +40,4 @@
 
 ---
 
-Built by **synthalorian 🎹🤺** (synthalorian) with **synthshark**.
+Built by **synth** (synthalorian) with **synthshark**.
