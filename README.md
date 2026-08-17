@@ -120,7 +120,7 @@ Apache License 2.0
 
 ## Credits
 
-Built by **synth** (synthalorian) with **synthclaw**.
+Built by **synthalorian 🎹🤺** (synthalorian) with **synthclaw**.
 
 ---
 
