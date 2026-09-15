@@ -206,7 +206,11 @@ impl SshClient {
         // If we never got an ExitStatus but the channel closed cleanly
         // and there's no stderr, treat as success (exit 0).
         let code = exit_code.unwrap_or({
-            if stderr.is_empty() { 0 } else { 255 }
+            if stderr.is_empty() {
+                0
+            } else {
+                255
+            }
         });
         Ok(SshResult {
             exit_code: code,

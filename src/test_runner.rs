@@ -161,7 +161,8 @@ pub fn format_table(report: &TestReport) -> String {
             CheckStatus::Warning => "⚠",
             CheckStatus::Error => "!",
         };
-        writeln!(output, "{} [{}] {}", icon, check.name, check.message).expect("write to String never fails");
+        writeln!(output, "{} [{}] {}", icon, check.name, check.message)
+            .expect("write to String never fails");
         if let Some(ref details) = check.details {
             writeln!(output, "    {}", details).expect("write to String never fails");
         }
@@ -195,7 +196,8 @@ pub fn format_junit(report: &TestReport) -> ForgeResult<String> {
     let mut output = String::new();
     use std::fmt::Write;
 
-    writeln!(output, r#"<?xml version="1.0" encoding="UTF-8"?>"#).expect("write to String never fails");
+    writeln!(output, r#"<?xml version="1.0" encoding="UTF-8"?>"#)
+        .expect("write to String never fails");
     writeln!(
         output,
         r#"<testsuite name="forge.test" tests="{}" failures="{}" errors="{}">"#,

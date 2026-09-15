@@ -126,9 +126,7 @@ fn find_articulation_points(
         .enumerate()
         .map(|(i, idx)| (idx, i))
         .collect();
-    let usize_to_idx: Vec<NodeIndex> = (0..n)
-        .filter_map(|i| graph.node_indices().nth(i))
-        .collect();
+    let usize_to_idx: Vec<NodeIndex> = (0..n).filter_map(|i| graph.node_indices().nth(i)).collect();
 
     #[expect(clippy::too_many_arguments)]
     fn dfs_ap(
@@ -155,7 +153,18 @@ fn find_articulation_points(
             if !visited[v] {
                 children += 1;
                 parent[v] = u as i32;
-                dfs_ap(graph, v, visited, disc, low, parent, ap, time, idx_to_usize, usize_to_idx);
+                dfs_ap(
+                    graph,
+                    v,
+                    visited,
+                    disc,
+                    low,
+                    parent,
+                    ap,
+                    time,
+                    idx_to_usize,
+                    usize_to_idx,
+                );
                 low[u] = low[u].min(low[v]);
                 if parent[u] == -1 && children > 1 {
                     ap[u] = true;
@@ -224,9 +233,8 @@ fn find_bridges(
         .enumerate()
         .map(|(i, idx)| (idx, i))
         .collect();
-    let e_usize_to_idx: Vec<NodeIndex> = (0..n)
-        .filter_map(|i| graph.node_indices().nth(i))
-        .collect();
+    let e_usize_to_idx: Vec<NodeIndex> =
+        (0..n).filter_map(|i| graph.node_indices().nth(i)).collect();
 
     #[expect(clippy::too_many_arguments)]
     fn dfs_bridges(
