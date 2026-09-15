@@ -48,10 +48,9 @@ petgraph = "0.6"
 # Random number generation
 rand = "0.8"
 
-# SSH (for deploy)
-russh = "0.45"
-russh-keys = "0.45"
-async-trait = "0.1"
+# SSH (for deploy). RSA feature disabled: pulls in the `rsa` crate which has
+# no fix for RUSTSEC-2023-0071 (Marvin timing attack). ed25519 keys unaffected.
+russh = { version = "0.63.3", default-features = false, features = ["flate2", "aws-lc-rs"] }
 
 # Shell path expansion
 shellexpand = "3"

@@ -1,8 +1,7 @@
 use crate::deploy::inventory::Node;
 use crate::error::{ForgeError, ForgeResult};
-use async_trait::async_trait;
 use russh::client;
-use russh::keys::{self, key};
+use russh::keys::{self, HashAlg, PrivateKeyWithHashAlg, PublicKeyOrCertificate};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -78,19 +77,18 @@ impl SshHandler {
     }
 }
 
-#[async_trait]
 impl client::Handler for SshHandler {
     type Error = russh::Error;
 
     async fn check_server_key(
         &mut self,
-        server_public_key: &key::PublicKey,
+        server_public_key: &PublicKeyOrCertificate,
     ) -> Result<bool, Self::Error> {
         if self.verify_host_key {
             tracing::warn!(
                 "Host key verification requested but known_hosts lookup not yet implemented. \
                  Fingerprint: {}",
-                server_public_key.fingerprint()
+                server_public_key.public_key().fingerprint(HashAlg::Sha256)
             );
             Ok(true)
         } else {
@@ -131,7 +129,10 @@ impl SshClient {
             })?;
 
         let auth_res = handle
-            .authenticate_publickey(&config.user, Arc::new(key_pair))
+            .authenticate_publickey(
+                &config.user,
+                PrivateKeyWithHashAlg::new(Arc::new(key_pair), None),
+            )
             .await
             .map_err(|e| {
                 ForgeError::Ssh(format!(
@@ -140,7 +141,7 @@ impl SshClient {
                 ))
             })?;
 
-        if !auth_res {
+        if !auth_res.success() {
             return Err(ForgeError::Ssh(format!(
                 "public key authentication rejected for {}@{}",
                 config.user, config.host
