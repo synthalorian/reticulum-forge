@@ -120,7 +120,7 @@ Apache License 2.0
 
 ## Credits
 
-Built by **synth** with **Blackclaw**.
+Built by **synth** with **blackclaw**.
 
 ---
 
