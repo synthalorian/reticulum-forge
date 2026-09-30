@@ -40,4 +40,3 @@
 
 ---
 
-Built by **synth** with **synthshark**.
