@@ -1,4 +1,4 @@
-# Maintainer: Carter <synthalorian@proton.me>
+# Maintainer: synthalorian <synthalorian@proton.me>
 pkgname=reticulum-forge
 pkgver=1.0.0
 pkgrel=1
