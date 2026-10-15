@@ -1,3 +1,5 @@
+![reticulum-forge](.github/preview.png)
+
 # ⚒ Reticulum Forge
 
 > CLI toolkit for building, testing, and deploying Reticulum networks — like terraform for mesh
