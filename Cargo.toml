@@ -36,7 +36,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Terminal
 indicatif = "0.17"
-colored = "2"
+colored = "3"
 console = "0.15"
 
 # Templating
