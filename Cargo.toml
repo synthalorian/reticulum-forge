@@ -40,7 +40,7 @@ colored = "2"
 console = "0.15"
 
 # Templating
-tera = "1"
+tera = "2"
 
 # Graph algorithms
 petgraph = "0.6"
